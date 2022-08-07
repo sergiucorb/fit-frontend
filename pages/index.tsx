@@ -2,20 +2,16 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
-import { useQuery } from "@apollo/client";
-import { UsersDocument, Users, usePostsQuery } from "../documents";
-import { useState } from "react";
+import { usePostsQuery, useUsersByIdQuery } from "../documents";
+import { AppContext } from "next/app";
+import { gql } from "@apollo/client";
+import { client } from "../graphql";
 
-const Home: NextPage = () => {
-  const { data } = useQuery<Users>(UsersDocument, {});  //NO MORE THIS 
-
-
-  const user = usePostsQuery(); //THIS 
-
-
-
-
-  console.log(user.data?.getPosts);
+const Home: NextPage = (props) => {
+  const user = usePostsQuery();
+  const { data, loading, refetch } = useUsersByIdQuery({
+    variables: { userId: 2 },
+  });
   return (
     <div className={styles.container}>
       <Head>
@@ -35,26 +31,18 @@ const Home: NextPage = () => {
         </p>
 
         <div className={styles.grid}>
-          {/* {data?.map((item) => {
-            return item.name;
-          })} */}
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+          {user.data?.getPosts.map((item) => {
+            return (
+              <a
+                key={item.id}
+                href="https://nextjs.org/docs"
+                className={styles.card}
+              >
+                <h2>{item.name} &rarr;</h2>
+                <p>{item.description}</p>
+              </a>
+            );
+          })}
 
           <a
             href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
@@ -85,3 +73,26 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+export async function getServerSideProps(context: AppContext) {
+  const { data } = await client.query({
+    query: gql`
+      query Users {
+        getUsers {
+          name
+          id
+          email
+          password
+          posts {
+            id
+            name
+            type
+            description
+          }
+        }
+      }
+    `,
+  });
+  return {
+    props: { users: data }, // will be passed to the page component as props
+  };
+}

@@ -1,20 +1,31 @@
-query Users {
-  getUsers {
-    name
-    posts {
-      id
-      name
-      type
-      description
-    }
+fragment PostData on Posts {
+  id
+  name
+  type
+  description
+}
+fragment UserData on Users {
+  name
+  id
+  email
+  password
+  posts {
+    ...PostData
   }
 }
 
+query Users {
+  getUsers {
+    ...UserData
+  }
+}
+query UsersById($userId: Float!) {
+  getUsersById(userId: $userId) {
+    ...UserData
+  }
+}
 query Posts {
   getPosts {
-    id
-    name
-    type
-    description
+    ...PostData
   }
 }
