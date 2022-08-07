@@ -3,11 +3,19 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import { useQuery } from "@apollo/client";
-import { Users, USERS_DOCUMENT } from "./document/users";
+import { UsersDocument, Users, usePostsQuery } from "../documents";
+import { useState } from "react";
 
 const Home: NextPage = () => {
-  const { data } = useQuery(USERS_DOCUMENT);
-  console.log(data);
+  const { data } = useQuery<Users>(UsersDocument, {});  //NO MORE THIS 
+
+
+  const user = usePostsQuery(); //THIS 
+
+
+
+
+  console.log(user.data?.getPosts);
   return (
     <div className={styles.container}>
       <Head>
@@ -27,7 +35,7 @@ const Home: NextPage = () => {
         </p>
 
         <div className={styles.grid}>
-          {/* {data?.getUsers.map((item) => {
+          {/* {data?.map((item) => {
             return item.name;
           })} */}
           <a href="https://nextjs.org/docs" className={styles.card}>

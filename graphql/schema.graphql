@@ -1,0 +1,20 @@
+query Users {
+  getUsers {
+    name
+    posts {
+      id
+      name
+      type
+      description
+    }
+  }
+}
+
+query Posts {
+  getPosts {
+    id
+    name
+    type
+    description
+  }
+}
